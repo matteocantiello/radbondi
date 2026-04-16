@@ -1,0 +1,66 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "radbondi"
+version = "0.1.0.dev0"
+description = "Time-dependent spherical Bondi accretion with radiative cooling"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [
+    { name = "Matteo Cantiello" },
+]
+keywords = ["astrophysics", "accretion", "bondi", "black-holes", "hydrodynamics"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+plot = ["matplotlib>=3.7"]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "ruff",
+    "matplotlib>=3.7",
+]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+]
+
+[project.urls]
+Homepage = "https://github.com/matteocantiello/radbondi"
+Issues = "https://github.com/matteocantiello/radbondi/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/radbondi"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --strict-markers"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+# N rules disabled: physics code uses standard notation (T, U, M_BH, ...).
+# SIM108: prefer explicit if/else over ternaries in scientific code.
+# SIM300: pytest.approx convention is `actual == approx(expected)`, not Yoda.
+ignore = ["E741", "SIM108", "SIM300"]
