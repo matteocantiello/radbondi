@@ -23,9 +23,14 @@ Two modes:
 * **Fast** (default): N=400, 1st-order HLL. 7 masses in a few minutes on
   a laptop. Reproduces the same numbers as ``tests/test_validation.py``,
   within ~30% of the paper's published values.
-* **HI_RES**: N=1200, 2nd-order MUSCL with the minmod limiter and a
-  conservative CFL=0.3. Matches the paper's production configuration
-  (higher resolution, MUSCL). ~20-45 min depending on hardware.
+* **HI_RES**: N=1200, paper-style **adaptive-order** scheme — 2nd-order
+  MUSCL/minmod for the weak-cooling regime (log M/M_sun <= -14.5) and
+  1st-order HLL for the strongly-cooled regime (log M/M_sun > -14.5).
+  This mirrors the paper's production strategy: MUSCL is less diffusive
+  in the collisionless end where it helps, but 1st-order is used in the
+  near-isothermal regime where MUSCL fundamentally cannot converge
+  (the cooling front is steeper than any linear reconstruction can
+  represent). ~15-45 min depending on hardware.
 """
 
 from __future__ import annotations
@@ -47,31 +52,38 @@ LOG_MASSES = [-16.0, -15.0, -14.0, -13.5, -13.0, -12.0, -11.0]
 OUT_DIR = Path(__file__).parent / "paper_sweep_output"
 
 
+# Threshold in log10(M_BH/M_sun) separating the two regimes. Below this,
+# cooling is weak and MUSCL helps; above it, the cooling front is too
+# steep for any linear reconstruction and 1st-order is more stable.
+STRONG_COOLING_LOGM = -14.5
+
+
 def solve_one(logM: float, ambient, cooling) -> rb.Solution:
     M_BH = 10.0**logM * rb.M_sun
     problem = rb.BondiProblem(M_BH=M_BH, ambient=ambient, cooling=cooling)
 
-    # More steps for the strongly-cooled (near-isothermal) end; the
-    # collisionless end converges fast once the cooling ramp finishes.
-    if logM > -14:
+    # Adaptive order: MUSCL in the weak-cooling regime, 1st-order in
+    # the strongly-cooled regime (where MUSCL fails to converge).
+    strong = logM > STRONG_COOLING_LOGM
+    order = 1 if (strong or not HI_RES) else 2
+
+    # More steps for the strongly-cooled end; the collisionless end
+    # converges quickly once the cooling ramp finishes.
+    if strong:
         n_steps = 80_000 if HI_RES else 40_000
     else:
         n_steps = 50_000 if HI_RES else 25_000
 
     cfg = rb.SolverConfig(
-        # HI_RES matches the paper's production config: MUSCL + minmod
-        # (more robust than MC at the sharp inner transition near r_S)
-        # and a conservative CFL for extra margin. Fast mode uses 1st-order
-        # HLL to reproduce the values in tests/test_validation.py.
         N=1200 if HI_RES else 400,
         x_min=1e-5,
         x_max=3.0,
         n_steps=n_steps,
         cooling_ramp_steps=5_000,
-        order=2 if HI_RES else 1,
+        order=order,
         limiter="minmod",
         flux="hll",
-        CFL=0.3 if HI_RES else 0.4,
+        CFL=0.4,
         snapshot_interval=n_steps,  # silence per-step prints
         verbose=False,
     )
@@ -84,15 +96,16 @@ def main():
 
     OUT_DIR.mkdir(exist_ok=True)
     mode = (
-        "HI_RES (N=1200, MUSCL/minmod, CFL=0.3)" if HI_RES
+        "HI_RES (N=1200, adaptive-order)" if HI_RES
         else "fast (N=400, HLL 1st-order)"
     )
     print(f"radbondi paper sweep — {mode}, {len(LOG_MASSES)} masses\n")
-    print(f"  {'log M/Msun':>10s}  {'eta':>10s}  {'Mdot/Mdot_B':>12s}  "
-          f"{'L [erg/s]':>12s}  {'T_max/T_inf':>11s}  {'time [s]':>8s}")
-    print("  " + "-" * 72)
+    print(f"  {'log M/Msun':>10s}  {'ord':>3s}  {'eta':>10s}  {'Mdot/Mdot_B':>12s}  "
+          f"{'L [erg/s]':>12s}  {'T_max/T_inf':>11s}  {'res':>9s}  {'time [s]':>8s}")
+    print("  " + "-" * 87)
 
     results = []
+    nonconverged = []
     for logM in LOG_MASSES:
         t0 = time.time()
         sol = solve_one(logM, ambient, cooling)
@@ -102,11 +115,24 @@ def main():
         sol.save(str(out_path))
 
         t_ratio = sol.T.max() / ambient.T
+        order_used = 2 if (HI_RES and logM <= STRONG_COOLING_LOGM) else 1
+        flag = " " if sol.converged else "!"
+        if not sol.converged:
+            nonconverged.append(logM)
         results.append((logM, sol.eta, sol.mdot_ratio, sol.L, t_ratio))
         print(
-            f"  {logM:>10.1f}  {sol.eta:>10.3e}  {sol.mdot_ratio:>12.2f}  "
-            f"{sol.L:>12.3e}  {t_ratio:>11.1f}  {dt:>8.1f}"
+            f" {flag}{logM:>10.1f}  {order_used:>3d}  {sol.eta:>10.3e}  "
+            f"{sol.mdot_ratio:>12.2f}  {sol.L:>12.3e}  {t_ratio:>11.1f}  "
+            f"{sol.solver_residual:>9.2e}  {dt:>8.1f}"
         )
+
+    if nonconverged:
+        print(
+            f"\nWARNING: {len(nonconverged)} runs did not reach the convergence "
+            f"tolerance: logM = {nonconverged}"
+        )
+        print("  Their eta / Mdot values should not be trusted. Raise n_steps "
+              "or switch to order=1 for those masses.")
 
     print(f"\nSolutions saved to: {OUT_DIR.resolve()}")
 
