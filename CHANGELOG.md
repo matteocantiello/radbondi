@@ -26,3 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - Solar-core preset.
   - 19 smoke tests covering imports, ambient, cooling, solver, feedback,
     save/load round-trip, and steady-state diagnostics.
+- Phase 4: user documentation.
+  - `docs/physics.md` — governing equations, Bondi IC, cooling microphysics,
+    and feedback models.
+  - `docs/scheme.md` — finite-volume discretization, MUSCL, HLL/Rusanov,
+    well-balancing, local time stepping, operator-split implicit cooling.
+  - `docs/usage.md` — install, API walkthrough, full `SolverConfig`
+    reference, plug-in cooling, feedback recipes, troubleshooting.
+  - `docs/README.md` index and top-level README pointers.

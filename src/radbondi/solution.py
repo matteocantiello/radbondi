@@ -13,8 +13,11 @@ from radbondi.constants import c_light
 class Solution:
     """Steady-state solution returned by :meth:`BondiProblem.solve`.
 
-    All arrays are on the cell-center grid. Derived scalars (eta, Mdot, L)
-    are computed from the converged profiles.
+    All arrays are on the cell-center grid. Derived scalars (eta, Mdot) are
+    available as properties; the underlying luminosity ``L`` is computed once
+    at solve time using the cooling prescription that was active and stored
+    here, so ``Solution`` is fully serializable without keeping a reference
+    to the cooling object.
     """
 
     # Grid
@@ -30,6 +33,9 @@ class Solution:
 
     # Conservatives (full state, useful for restart or further analysis)
     U: np.ndarray             # shape (3, N)
+
+    # Derived scalar luminosity, computed at solve time
+    L: float                  # total luminosity [erg s^-1]
 
     # Convergence diagnostics
     residuals: np.ndarray     # per-step residual time series
@@ -69,19 +75,26 @@ class Solution:
         """Mdot / Mdot_Bondi (cooling enhancement factor)."""
         return self.Mdot / self.Mdot_B
 
-    def luminosity(self, cooling) -> float:
-        """Total luminosity L = integral of net emissivity over the domain.
+    @property
+    def eta(self) -> float:
+        """Radiative efficiency eta = L / (Mdot_B c^2)."""
+        return self.L / (self.Mdot_B * c_light**2)
 
-        Requires a :class:`Cooling` instance to evaluate the emissivity. The
-        ``Cooling`` is not stored on the Solution to keep it serialization-safe.
+    def recompute_luminosity(self, cooling) -> float:
+        """Re-evaluate the luminosity integral with a (possibly different)
+        cooling prescription.
+
+        Useful for sensitivity analyses (e.g., asking how much of the
+        luminosity is bremsstrahlung vs pair emission). Returns the new value
+        but does not mutate the stored ``self.L``.
         """
         from radbondi.ambient import AmbientMedium
         ambient = AmbientMedium(
             T=self.ambient_T, rho=self.ambient_rho, mu=self.ambient_mu,
             gamma=self.ambient_gamma, X=self.ambient_X, Y=self.ambient_Y,
         )
-        # Reconstruct cell volumes from the grid: faces are r_face[i] =
-        # r_cen[i] / sqrt(r_cen[1]/r_cen[0]) for the log-spaced grid.
+        # Reconstruct cell volumes: log-spaced grid -> faces are
+        # r_face[i] = r_cen[i] / sqrt(r_cen[1]/r_cen[0]).
         ratio = (self.r[1] / self.r[0]) ** 0.5
         r_face = np.empty(len(self.r) + 1)
         r_face[:-1] = self.r / ratio
@@ -89,13 +102,6 @@ class Solution:
         vol = (r_face[1:] ** 3 - r_face[:-1] ** 3) / 3.0
         eps = cooling.net_emissivity(self.rho, self.T, ambient)
         return float(4.0 * np.pi * np.sum(eps * vol))
-
-    def eta(self, cooling) -> float:
-        """Radiative efficiency eta = L / (Mdot c^2).
-
-        Requires a :class:`Cooling` instance to evaluate L.
-        """
-        return self.luminosity(cooling) / (self.Mdot_B * c_light**2)
 
     @property
     def solver_residual(self) -> float:
@@ -111,6 +117,7 @@ class Solution:
             r=self.r, r_B=self.r_B,
             rho=self.rho, v=self.v, P=self.P, T=self.T, Mach=self.Mach,
             U=self.U,
+            L=self.L,
             residuals=self.residuals,
             converged=self.converged,
             M_BH=self.M_BH, Mdot_B=self.Mdot_B,
@@ -165,6 +172,7 @@ def load(path: str) -> Solution:
         r=data["r"], r_B=float(data["r_B"]),
         rho=data["rho"], v=data["v"], P=data["P"], T=data["T"], Mach=data["Mach"],
         U=data["U"],
+        L=float(data["L"]),
         residuals=data["residuals"],
         converged=bool(data["converged"]),
         M_BH=float(data["M_BH"]), Mdot_B=float(data["Mdot_B"]),

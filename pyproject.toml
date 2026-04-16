@@ -52,7 +52,12 @@ packages = ["src/radbondi"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-v --strict-markers"
+# Default: skip slow tests. Run with `pytest -m slow` or `pytest -m ""` to
+# include them.
+addopts = "-v --strict-markers -m 'not slow'"
+markers = [
+    "slow: tests that take > 5 s (mass-grid runs, convergence studies)",
+]
 
 [tool.ruff]
 line-length = 100

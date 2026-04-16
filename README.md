@@ -36,6 +36,17 @@ print(f"eta = {sol.eta:.3e}")
 sol.plot_profiles()
 ```
 
+## Documentation
+
+See the [`docs/`](docs/README.md) directory:
+
+- [**usage.md**](docs/usage.md) — installation, quickstart, API, and all
+  `SolverConfig` knobs.
+- [**physics.md**](docs/physics.md) — equations, Bondi solution,
+  microphysics, and feedback models.
+- [**scheme.md**](docs/scheme.md) — finite-volume discretization,
+  well-balancing, and implicit cooling.
+
 ## Citation
 
 If you use `radbondi` in published work, please cite:
@@ -47,4 +58,3 @@ A `CITATION.cff` will be added on first tagged release.
 ## License
 
 MIT — see [LICENSE](LICENSE).
-# radbondi

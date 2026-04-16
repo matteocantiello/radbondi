@@ -388,10 +388,18 @@ def _evolve_local_dt(problem: BondiProblem, cfg: SolverConfig) -> Solution:
     rho, v, P, T, cs = get_primitives(U, gamma, mu, T_floor)
     Mach = np.abs(v) / cs
 
+    # Final luminosity (cooling-integrated over the domain)
+    if has_cooling:
+        eps_net = cooling.net_emissivity(rho, T, ambient, eps_ambient)
+        L_total = float(4.0 * np.pi * np.sum(eps_net * grid.vol))
+    else:
+        L_total = 0.0
+
     return Solution(
         r=grid.r_cen, r_B=problem.r_B,
         rho=rho, v=v, P=P, T=T, Mach=Mach,
         U=U,
+        L=L_total,
         residuals=np.array(residuals),
         converged=converged,
         M_BH=M_BH, Mdot_B=problem.Mdot_B,
