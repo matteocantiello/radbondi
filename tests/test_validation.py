@@ -10,11 +10,9 @@ or to run everything (fast + slow)::
     pytest -m ""
 """
 
-import numpy as np
 import pytest
 
 import radbondi as rb
-
 
 # Reference values from Table 1 of Cantiello et al. (in prep), with the
 # baseline (no-feedback) configuration. The paper's production runs use

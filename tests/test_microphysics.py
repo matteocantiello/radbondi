@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 import radbondi as rb
-from radbondi.constants import alpha_fs, c_light, kB, m_e, m_p, sigma_T
+from radbondi.constants import c_light, kB, m_e
 from radbondi.cooling import PairAnnihilation, RelativisticBremsstrahlung
 
 
