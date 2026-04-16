@@ -257,13 +257,14 @@ annihilation. To build your own, subclass `CoolingProcess`:
 ```python
 import numpy as np
 from radbondi import CoolingProcess, Cooling
+from radbondi.constants import m_p
 
 class ConstantCooling(CoolingProcess):
     def __init__(self, Lambda0):
         self.Lambda0 = Lambda0  # [erg cm^3 s^-1]
 
     def emissivity(self, rho, T, ambient):
-        n = rho / (ambient.mu * 1.67e-24)
+        n = rho / (ambient.mu * m_p)
         return self.Lambda0 * n**2 * np.ones_like(T)
 
 problem = rb.BondiProblem(
@@ -298,7 +299,9 @@ externally.
 ```python
 from radbondi.feedback import DiffusionFeedback
 
-feedback = DiffusionFeedback(ambient=ambient, kappa=0.34)  # cm^2/g
+# kappa: opacity at the photon coupling radius [cm^2/g].
+# Electron scattering: kappa_es = 0.2*(1 + X); for solar-core X=0.34 this is ~0.27.
+feedback = DiffusionFeedback(ambient=ambient, kappa=0.27)
 
 T_eff = ambient.T
 for i in range(10):
@@ -320,8 +323,8 @@ from radbondi.feedback import MLTEnvelope
 
 env = MLTEnvelope(
     ambient=ambient, M_BH=M_BH,
-    kappa_env=0.34,   # electron-scattering (cm^2/g); auto-computed if None
-    kappa_BH=0.34,    # coupling opacity for BH spectrum
+    kappa_env=None,   # default: electron scattering 0.2*(1+X) [cm^2/g]
+    kappa_BH=0.4,     # coupling opacity for BH spectrum [cm^2/g]
     alpha_mlt=1.5,
 )
 

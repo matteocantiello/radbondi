@@ -217,14 +217,23 @@ subsequent RHS evaluation:
 $$
 \left(\frac{dU}{dt}\right)^{\!\rm WB}_{i}
 = R[U_{i}]
-- w_{i}\,R_{\rm eq,i},\qquad
-w_{i} = \exp\!\left(-\frac{\|U_{i} - U_{\rm eq,i}\|}{0.01\,\|U_{i}\|}\right).
+- w_{i}\,R_{\rm eq,i},
 $$
 
-Where the flow has stayed near equilibrium ($w \to 1$) the scheme is
-well-balanced to machine precision. Where cooling has restructured the
-flow ($w \to 0$) full physical dissipation is restored. The weight
-$w$ uses the normalized RMS deviation across the three conservatives.
+with a per-cell weight built from the normalized deviation across the
+three conservative components $k \in \{\rho,\, \rho v,\, E\}$:
+
+$$
+\mathrm{frac}_{i} = \sqrt{\frac{1}{3}\sum_{k}\!\left(\frac{U_{k,i} - U_{\rm eq,k,i}}{|U_{k,i}| + 10^{-30}}\right)^{\!2}},
+\qquad
+w_{i} = \exp\!\left(-\mathrm{frac}_{i}/0.01\right).
+$$
+
+Where the flow has stayed near equilibrium ($\mathrm{frac}\ll 0.01 \Rightarrow w \to 1$)
+the scheme is well-balanced to machine precision. Where cooling has
+restructured the flow by more than ~1% in any conservative component
+($\mathrm{frac}\gtrsim 0.01 \Rightarrow w \to 0$) the equilibrium
+correction is suppressed and full physical dissipation is restored.
 
 MUSCL slopes are also computed on $W - W_{\rm eq}$, and the HLL
 dissipation uses the deviation (§4). Together these let the scheme hold

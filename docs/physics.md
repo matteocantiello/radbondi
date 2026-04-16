@@ -38,11 +38,22 @@ $$
 = -\rho v\,\frac{GM_{\bullet}}{r^{2}} - \varepsilon(\rho, T).
 $$
 
-The geometric pressure source $2P/r$ appears because the spherical
-divergence of the momentum flux $r^{2}(\rho v^{2} + P)$ produces an extra
-$2P/r$ term when $P$ is pulled out — the code uses the equivalent
-finite-volume form $P\,(A_{i+1/2} - A_{i-1/2})/V_{i}$ rather than a
-pointwise $2P/r$. See `hydro_rhs` in `src/radbondi/hydro.py`.
+The geometric pressure source $2P/r$ compensates for putting the scalar
+pressure inside the spherical divergence:
+
+$$
+\frac{1}{r^{2}}\partial_{r}\!\bigl(r^{2}P\bigr) = \partial_{r}P + \frac{2P}{r}.
+$$
+
+The physical pressure gradient in the momentum equation is $\partial_{r}P$;
+writing the momentum flux in fully conservative form as
+$r^{2}(\rho v^{2} + P)$ therefore introduces a spurious $2P/r$ that is
+moved to the right-hand side as a source. The code uses the discretely
+flux-consistent finite-volume form $P\,(A_{i+1/2} - A_{i-1/2})/V_{i}$
+rather than a pointwise $2P/r$, which exactly cancels the pressure
+divergence at $v \to 0$ (preserves hydrostatic equilibrium — see
+[scheme.md §2](scheme.md#2-finite-volume-discretization)).
+See `hydro_rhs` in `src/radbondi/hydro.py`.
 
 Gravity is Newtonian. There is no self-gravity; the accretor mass
 $M_{\bullet}$ is fixed.

@@ -8,10 +8,10 @@ a self-consistent steady state. It is designed for problems where the standard
 ODE shooting method fails — e.g., when cooling is strong enough that the sonic
 point becomes a focus (complex eigenvalues) rather than a saddle.
 
-The default microphysics (relativistic bremsstrahlung + e⁺e⁻ pair annihilation)
-targets accretion onto compact objects in hot, dense environments such as
-stellar interiors, but the cooling module is plug-in: users can add their own
-processes by subclassing `CoolingProcess`.
+The default microphysics (relativistic bremsstrahlung + e⁺e⁻ and μ⁺μ⁻
+pair annihilation) targets accretion onto compact objects in hot, dense
+environments such as stellar interiors, but the cooling module is plug-in:
+users can add their own processes by subclassing `CoolingProcess`.
 
 ## Status
 

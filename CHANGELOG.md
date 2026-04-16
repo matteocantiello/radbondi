@@ -26,6 +26,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - Solar-core preset.
   - 19 smoke tests covering imports, ambient, cooling, solver, feedback,
     save/load round-trip, and steady-state diagnostics.
+- Phase 3: physics validation tests.
+  - `tests/test_bondi.py` — adiabatic Bondi solution: eigenvalue
+    $\lambda(\gamma)$ at 5/3 and 4/3, $r_B$ and $\dot M_B$ scalings,
+    interior power laws ($\rho\propto r^{-3/2}$, $T\propto r^{-1}$,
+    $v\propto r^{-1/2}$).
+  - `tests/test_microphysics.py` — bremsstrahlung limits (non-relativistic
+    $T^{1/2}$ scaling, $\rho^2$, ultra-relativistic $T\log T$) and pair
+    annihilation (sharp turn-on near $\theta_e\sim 1$, muon channel
+    negligible at electron threshold), net-emissivity floor.
+  - `tests/test_validation.py` — end-to-end paper Table 1 reproduction
+    (parametrized across three BH masses), resolution convergence, tight
+    steady-state residuals, save/load preserves $\eta$. Gated behind a
+    `slow` pytest marker; run with `pytest -m slow`.
+  - `tests/test_feedback.py` — MLT saturates below diffusion at $\beta\gg 1$.
+  - `tests/conftest.py` and `slow` marker in `pyproject.toml`; default
+    pytest run skips slow tests.
 - Phase 4: user documentation.
   - `docs/physics.md` — governing equations, Bondi IC, cooling microphysics,
     and feedback models.
