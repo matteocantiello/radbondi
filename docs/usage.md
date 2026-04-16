@@ -372,13 +372,30 @@ cfg = rb.SolverConfig(
 )
 ```
 
-### Sweep over BH mass
+### Sweep over BH mass (paper Table 1)
+
+A runnable sweep that reproduces the paper's three canonical regimes —
+collisionless, bremsstrahlung-dominated, and near-isothermal — lives in
+[`examples/02_paper_sweep.py`](../examples/02_paper_sweep.py). It writes
+each `Solution` to `examples/paper_sweep_output/` and produces a summary
+figure with `eta(M_BH)` and `Mdot/Mdot_B(M_BH)`.
+
+```bash
+# Fast demo: N=400, 1st-order HLL, ~few minutes.
+python examples/02_paper_sweep.py
+
+# Paper config: N=1200, 2nd-order MUSCL + MC limiter, ~20-45 minutes.
+RADBONDI_HI_RES=1 python examples/02_paper_sweep.py
+```
+
+Minimal inline version if you want to customize:
 
 ```python
-for m_exp in range(-18, -10):
-    problem = rb.BondiProblem(10.**m_exp * rb.M_sun, ambient, cooling)
+for logM in [-16, -15, -14, -13.5, -13, -12, -11]:
+    problem = rb.BondiProblem(10.**logM * rb.M_sun, ambient, cooling)
     sol = problem.solve(cfg)
-    sol.save(f"mbh_1e{m_exp}.npz")
+    sol.save(f"mbh_logM{logM:+.1f}.npz")
+    print(f"log M = {logM:+.1f}  eta = {sol.eta:.3e}  Mdot/Mdot_B = {sol.mdot_ratio:.2f}")
 ```
 
 ---
@@ -411,7 +428,9 @@ down (but never below $r_{S}/r_{B}$).
 
 ## 13. What's next
 
-- `examples/01_quickstart.py` — working end-to-end script.
+- `examples/01_quickstart.py` — single end-to-end run.
+- `examples/02_paper_sweep.py` — reproduce the paper's Table 1 mass
+  sweep and generate the `eta(M_BH)` figure.
 - `tests/` — short, focused tests that double as usage examples
   (`test_solver.py` is the most illustrative).
 - [physics.md](physics.md) — equations behind all of the above.
