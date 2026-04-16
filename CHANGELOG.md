@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-04-16
+
+First public release. The package reproduces the Cantiello et al. (in prep.)
+paper Table 1 results within ~30 % at fast-test resolution and within a few
+percent at the paper's production resolution. Steady-state mass-flux
+conservation verified to better than 1 % across all four accretion regimes.
+
 ### Added
+- `CITATION.cff` for machine-readable citation metadata (rendered as
+  "Cite this repository" on GitHub).
 - Initial package scaffold (Phase 1).
 - Phase 2: working public API.
   - `AmbientMedium` (CGS, immutable, with `with_temperature` / `with_density`).

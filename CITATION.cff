@@ -1,0 +1,49 @@
+# Citation metadata for radbondi.
+# See https://citation-file-format.github.io/
+
+cff-version: 1.2.0
+message: >-
+  If you use this software, please cite both the software and the paper
+  describing the underlying physics (listed under preferred-citation).
+title: "radbondi"
+abstract: >-
+  Time-dependent spherical Bondi accretion solver with pluggable radiative
+  cooling. Solves the 1D spherical Euler equations with an implicit cooling
+  source term and converges to a self-consistent steady state, in regimes
+  where the standard ODE shooting method fails (sonic point becomes a focus
+  rather than a saddle).
+type: software
+authors:
+  - given-names: Matteo
+    family-names: Cantiello
+    orcid: "https://orcid.org/0000-0002-8171-8596"
+    affiliation: >-
+      Center for Computational Astrophysics, Flatiron Institute, New York,
+      NY, USA / Department of Astrophysical Sciences, Princeton University,
+      Princeton, NJ, USA
+license: MIT
+repository-code: "https://github.com/matteocantiello/radbondi"
+url: "https://github.com/matteocantiello/radbondi"
+keywords:
+  - astrophysics
+  - accretion
+  - bondi-accretion
+  - black-holes
+  - hydrodynamics
+  - primordial-black-holes
+version: 0.1.0
+date-released: "2026-04-16"
+
+preferred-citation:
+  type: article
+  title: >-
+    Growth of Primordial Black Holes in Stellar Interiors:
+    Bondi Accretion with Bremsstrahlung Cooling
+  authors:
+    - given-names: Matteo
+      family-names: Cantiello
+      orcid: "https://orcid.org/0000-0002-8171-8596"
+  year: 2026
+  notes: >-
+    In preparation. This entry will be updated with journal, volume, and DOI
+    information once the paper is accepted.

@@ -49,11 +49,12 @@ See the [`docs/`](docs/README.md) directory:
 
 ## Citation
 
-If you use `radbondi` in published work, please cite:
+If you use `radbondi` in published work, please cite both the software and
+the paper describing the underlying physics. See [`CITATION.cff`](CITATION.cff)
+for machine-readable metadata; GitHub renders a "Cite this repository" button
+on the project page.
 
 > Cantiello et al. (in prep.)
-
-A `CITATION.cff` will be added on first tagged release.
 
 ## License
 

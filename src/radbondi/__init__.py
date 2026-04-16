@@ -8,7 +8,7 @@ from radbondi.grid import Grid
 from radbondi.solution import Solution, load
 from radbondi.solver import BondiProblem, SolverConfig
 
-__version__ = "0.1.0.dev0"
+__version__ = "0.1.0"
 
 __all__ = [
     "AmbientMedium",
