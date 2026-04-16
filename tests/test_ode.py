@@ -6,7 +6,6 @@ import pytest
 import radbondi as rb
 from radbondi.ode import ODESolverConfig, solve_ode
 
-
 # ── Fast tests ────────────────────────────────────────────────────────────
 
 
