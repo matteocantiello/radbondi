@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- `radbondi.ode.solve_ode` and `ODESolverConfig`: three-zone ODE shooting
+  solver (Born iteration + ballistic inner zone), faithfully ported from
+  the original `sonic_solver.py`. Reproduces the paper's reference value
+  `eta = 2.04e-2` at `M_BH = 1e-16 M_sun` exactly. Returns a `Solution`
+  API-compatible with `BondiProblem.solve`.
+- `tests/test_ode.py`: ODE solver smoke tests (3 fast + 1 slow ODE-vs-
+  time-dependent cross-validation in the collisionless regime).
+- `examples/03_feedback.py`: end-to-end recipe for the self-consistent
+  feedback iteration loop (solve → compute T_eff → re-solve), using the
+  MLT envelope model.
+
+### Changed
+- README now shows CI status, license, and Python version badges.
+- `_initialize_from_bondi` (via `bondi.adiabatic_profile`): replaced the
+  per-cell `brentq` Python loop with vectorized bisection. ~17x speedup
+  at N=6400 (80 ms → 5 ms); identical results to within machine precision.
+- CI: enforce minimum 85% coverage with `--cov-fail-under=85`
+  (current: 88%).
+
+### Removed
+- `mkdocs`, `mkdocs-material`, `mkdocstrings[python]` from the `[docs]`
+  optional-dependency group. Documentation stays as flat markdown under
+  `docs/`.
+
 ## [0.1.0] - 2026-04-16
 
 First public release. The package reproduces the Cantiello et al. (in prep.)
