@@ -23,9 +23,9 @@ Two modes:
 * **Fast** (default): N=400, 1st-order HLL. 7 masses in a few minutes on
   a laptop. Reproduces the same numbers as ``tests/test_validation.py``,
   within ~30% of the paper's published values.
-* **HI_RES**: N=1200, 2nd-order MUSCL with the MC limiter. Matches the
-  paper's production configuration (higher resolution, MUSCL). ~20-45 min
-  depending on hardware.
+* **HI_RES**: N=1200, 2nd-order MUSCL with the minmod limiter and a
+  conservative CFL=0.3. Matches the paper's production configuration
+  (higher resolution, MUSCL). ~20-45 min depending on hardware.
 """
 
 from __future__ import annotations
@@ -59,17 +59,19 @@ def solve_one(logM: float, ambient, cooling) -> rb.Solution:
         n_steps = 50_000 if HI_RES else 25_000
 
     cfg = rb.SolverConfig(
-        # HI_RES matches the paper's production config: MUSCL at the MC
-        # limiter, higher resolution. Fast mode uses 1st-order HLL to
-        # reproduce the values in tests/test_validation.py.
+        # HI_RES matches the paper's production config: MUSCL + minmod
+        # (more robust than MC at the sharp inner transition near r_S)
+        # and a conservative CFL for extra margin. Fast mode uses 1st-order
+        # HLL to reproduce the values in tests/test_validation.py.
         N=1200 if HI_RES else 400,
         x_min=1e-5,
         x_max=3.0,
         n_steps=n_steps,
         cooling_ramp_steps=5_000,
         order=2 if HI_RES else 1,
-        limiter="mc" if HI_RES else "minmod",
+        limiter="minmod",
         flux="hll",
+        CFL=0.3 if HI_RES else 0.4,
         snapshot_interval=n_steps,  # silence per-step prints
         verbose=False,
     )
@@ -81,7 +83,10 @@ def main():
     cooling = rb.Cooling.default()
 
     OUT_DIR.mkdir(exist_ok=True)
-    mode = "HI_RES (N=1200, MUSCL/mc)" if HI_RES else "fast (N=400, HLL 1st-order)"
+    mode = (
+        "HI_RES (N=1200, MUSCL/minmod, CFL=0.3)" if HI_RES
+        else "fast (N=400, HLL 1st-order)"
+    )
     print(f"radbondi paper sweep — {mode}, {len(LOG_MASSES)} masses\n")
     print(f"  {'log M/Msun':>10s}  {'eta':>10s}  {'Mdot/Mdot_B':>12s}  "
           f"{'L [erg/s]':>12s}  {'T_max/T_inf':>11s}  {'time [s]':>8s}")

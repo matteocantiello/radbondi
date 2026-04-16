@@ -55,3 +55,6 @@ site/
 *.csv
 scratch/
 tmp/
+
+# Generated example output
+examples/paper_sweep_output/

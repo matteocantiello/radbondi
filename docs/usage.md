@@ -384,7 +384,7 @@ figure with `eta(M_BH)` and `Mdot/Mdot_B(M_BH)`.
 # Fast demo: N=400, 1st-order HLL, ~few minutes.
 python examples/02_paper_sweep.py
 
-# Paper config: N=1200, 2nd-order MUSCL + MC limiter, ~20-45 minutes.
+# Paper config: N=1200, 2nd-order MUSCL + minmod limiter, CFL=0.3, ~20-45 min.
 RADBONDI_HI_RES=1 python examples/02_paper_sweep.py
 ```
 
