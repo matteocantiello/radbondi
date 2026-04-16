@@ -32,4 +32,7 @@ jobs:
         run: ruff check src tests
 
       - name: Run tests
-        run: pytest --cov=radbondi --cov-report=term-missing
+        # Fast tests only in CI (slow physics validation runs locally /
+        # nightly). Coverage gate is set just below the current baseline
+        # so adding new code without tests fails CI.
+        run: pytest --cov=radbondi --cov-report=term-missing --cov-fail-under=85

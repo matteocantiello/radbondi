@@ -37,11 +37,7 @@ dev = [
     "ruff",
     "matplotlib>=3.7",
 ]
-docs = [
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings[python]",
-]
+# Documentation is plain markdown under docs/ — no extra deps required.
 
 [project.urls]
 Homepage = "https://github.com/matteocantiello/radbondi"

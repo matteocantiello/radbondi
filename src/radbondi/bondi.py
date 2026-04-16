@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-from scipy.optimize import brentq
 
 from radbondi.constants import G, c_light
 
@@ -39,11 +38,37 @@ def bondi_rate(M_BH: float, ambient) -> float:
     return 4.0 * np.pi * lambda_bondi(ambient.gamma) * ambient.rho * ambient.cs * r_B**2
 
 
+def _subsonic_mach(target, gam, n_iter=60):
+    """Vectorized bisection for the subsonic Bondi Mach number.
+
+    Solves ``g(M) = target`` for M in ``(0, 1)``, where
+    ``g(M) = M^alpha * (M^2/2 + 1/(gam-1))`` and
+    ``alpha = 2 (1-gam)/(gam+1)``. ``g`` is strictly decreasing on
+    ``(0, 1)`` for ``gam > 1``, so plain bisection converges robustly.
+    Sixty iterations give relative precision of ~1e-18.
+    """
+    alpha = 2.0 * (1.0 - gam) / (gam + 1.0)
+    inv_gm1 = 1.0 / (gam - 1.0)
+    target = np.asarray(target, dtype=float)
+    M_lo = np.full_like(target, 1e-15)
+    M_hi = np.full_like(target, 1.0 - 1e-15)
+    for _ in range(n_iter):
+        M_mid = 0.5 * (M_lo + M_hi)
+        g_mid = M_mid**alpha * (0.5 * M_mid**2 + inv_gm1)
+        # g is decreasing in M, so g > target means M is too small.
+        too_small = g_mid > target
+        M_lo = np.where(too_small, M_mid, M_lo)
+        M_hi = np.where(too_small, M_hi, M_mid)
+    return 0.5 * (M_lo + M_hi)
+
+
 def adiabatic_profile(x_array, ambient):
     """Adiabatic Bondi profiles at x = r/r_B.
 
-    Solves the Bernoulli + isentropic equations for the transonic solution.
-    Returns dimensional ``(v, T, rho, Mach)`` arrays in CGS.
+    Solves the Bernoulli + isentropic equations for the transonic solution
+    (subsonic branch, appropriate for ``gamma = 5/3`` where the formal sonic
+    point sits at ``r = 0``). Returns dimensional ``(v, T, rho, Mach)``
+    arrays in CGS.
 
     Parameters
     ----------
@@ -53,25 +78,13 @@ def adiabatic_profile(x_array, ambient):
         Ambient conditions (provides cs, T, rho, gamma).
     """
     gam = ambient.gamma
-    alpha_exp = 2.0 * (1.0 - gam) / (gam + 1.0)
     beta_exp = 4.0 * (gam - 1.0) / (gam + 1.0)
     lam = lambda_bondi(gam)
+    Theta = lam ** (2.0 * (1.0 - gam) / (gam + 1.0))
 
-    def g_func(M):
-        return M**alpha_exp * (M**2 / 2.0 + 1.0 / (gam - 1.0))
-
-    def f_func(x):
-        return x**beta_exp * (1.0 / x + 1.0 / (gam - 1.0))
-
-    Theta = lam**alpha_exp
     x_array = np.atleast_1d(np.asarray(x_array, dtype=float))
-    M_array = np.zeros_like(x_array)
-    for i, x in enumerate(x_array):
-        target = Theta * f_func(x)
-        try:
-            M_array[i] = brentq(lambda M, t=target: g_func(M) - t, 1e-15, 1.0 - 1e-15)
-        except ValueError:
-            M_array[i] = 1e-10
+    target = Theta * x_array**beta_exp * (1.0 / x_array + 1.0 / (gam - 1.0))
+    M_array = _subsonic_mach(target, gam)
 
     rho_t = (lam / (x_array**2 * M_array)) ** (2.0 / (gam + 1.0))
     cs_t = rho_t ** ((gam - 1.0) / 2.0)

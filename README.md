@@ -1,5 +1,9 @@
 # radbondi
 
+[![tests](https://github.com/matteocantiello/radbondi/actions/workflows/test.yml/badge.svg)](https://github.com/matteocantiello/radbondi/actions/workflows/test.yml)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](pyproject.toml)
+
 Time-dependent spherical Bondi accretion with radiative cooling.
 
 `radbondi` solves the 1D spherical Euler equations with an implicit cooling
