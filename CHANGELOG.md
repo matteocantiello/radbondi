@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-04-16
+
+Adds an ODE shooting solver for cross-validation in regimes where the
+sonic point is a saddle, and a worked feedback-iteration recipe.
+Internal: ~17x faster Bondi initial-condition setup, CI coverage gate
+at 85%, README badges, drop unused `mkdocs` deps.
+
 ### Added
 - `radbondi.ode.solve_ode` and `ODESolverConfig`: three-zone ODE shooting
   solver (Born iteration + ballistic inner zone), faithfully ported from

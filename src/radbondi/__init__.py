@@ -9,7 +9,7 @@ from radbondi.ode import ODESolverConfig, solve_ode
 from radbondi.solution import Solution, load
 from radbondi.solver import BondiProblem, SolverConfig
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "AmbientMedium",
