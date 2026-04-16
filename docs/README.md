@@ -12,6 +12,17 @@
   work-log for reproducing Cantiello et al. Table 1 on a fast machine:
   exact per-mass `(order, N, x_min)` config, verification recipe,
   known gotchas.
+- **[custom_cooling.md](custom_cooling.md)** — recipe for adding your own
+  cooling process by subclassing `CoolingProcess`, with a worked
+  inverse-Compton example.
 
-A runnable end-to-end example is in [`examples/01_quickstart.py`](../examples/01_quickstart.py);
-a multi-mass sweep in [`examples/02_paper_sweep.py`](../examples/02_paper_sweep.py).
+Runnable examples:
+
+- [`examples/01_quickstart.py`](../examples/01_quickstart.py) — solve one
+  mass, inspect the result.
+- [`examples/02_paper_sweep.py`](../examples/02_paper_sweep.py) — paper
+  Table 1 mass sweep.
+- [`examples/03_feedback.py`](../examples/03_feedback.py) — self-consistent
+  iteration with the MLT envelope feedback.
+- [`examples/04_custom_cooling.py`](../examples/04_custom_cooling.py) —
+  inverse-Compton plug-in cooling.

@@ -78,8 +78,8 @@ def main():
     max_iter = 8
 
     print(
-        f"  iter  T_eff [K]    x = T_eff/T_core    eta         L [erg/s]   "
-        f"|dL|/L"
+        "  iter  T_eff [K]    x = T_eff/T_core    eta         L [erg/s]   "
+        "|dL|/L"
     )
     print(
         f"   0    {ambient.T:.3e}  {1.0:.3f}              "
