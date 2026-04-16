@@ -5,6 +5,7 @@ from radbondi.ambient import AmbientMedium
 from radbondi.constants import M_sun
 from radbondi.cooling import Cooling, CoolingProcess
 from radbondi.grid import Grid
+from radbondi.ode import ODESolverConfig, solve_ode
 from radbondi.solution import Solution, load
 from radbondi.solver import BondiProblem, SolverConfig
 
@@ -17,10 +18,12 @@ __all__ = [
     "CoolingProcess",
     "Grid",
     "M_sun",
+    "ODESolverConfig",
     "Solution",
     "SolverConfig",
     "constants",
     "load",
     "presets",
+    "solve_ode",
     "__version__",
 ]
