@@ -291,32 +291,27 @@ rb.Cooling.adiabatic()    # no cooling (empty list)
 
 Radiative feedback is **off by default**. The core solver takes a fixed
 ambient. A feedback model takes the BH luminosity and returns a modified
-effective ambient temperature $T_{\infty}'$; the user iterates
-externally.
+effective ambient temperature $T_{\infty}'$; the solver re-runs with the
+new ambient until $L$ converges.
 
-### Pure diffusion
+### Recommended: `solve_with_feedback()`
 
 ```python
 from radbondi.feedback import DiffusionFeedback
 
-# kappa: opacity at the photon coupling radius [cm^2/g].
-# Electron scattering: kappa_es = 0.2*(1 + X); for solar-core X=0.34 this is ~0.27.
 feedback = DiffusionFeedback(ambient=ambient, kappa=0.27)
+sol = problem.solve_with_feedback(feedback, config=cfg, tol=1e-3, max_iter=10)
 
-T_eff = ambient.T
-for i in range(10):
-    prob_i = rb.BondiProblem(M_BH, ambient.with_temperature(T_eff), cooling)
-    sol_i = prob_i.solve(cfg)
-    result = feedback.feedback_temperature(sol_i.L)
-    if abs(result.T_eff / T_eff - 1) < 1e-3:
-        break
-    T_eff = result.T_eff
+print(sol.metadata["feedback_converged"])    # True/False
+print(sol.metadata["feedback_iterations"])   # how many rounds
+print(sol.metadata["feedback_T_eff"])        # final T_eff [K]
 ```
 
-Valid when the dimensionless parameter $\beta \lesssim 1$ (returned in
-`result.beta`). For $\beta \gg 1$ use the MLT envelope instead.
+Works with any model that has a `feedback_temperature(L_BH=...)` method:
+`DiffusionFeedback` (pure radiative diffusion, valid for $\beta \lesssim 1$)
+or `MLTEnvelope` (includes convective saturation, necessary for $\beta \gg 1$).
 
-### MLT envelope
+### MLT envelope example
 
 ```python
 from radbondi.feedback import MLTEnvelope
@@ -328,14 +323,32 @@ env = MLTEnvelope(
     alpha_mlt=1.5,
 )
 
-T_eff = env.feedback_temperature(L_BH)
-# Or for the full structure:
-profile = env.integrate(L_BH)   # returns an EnvelopeProfile
+sol = problem.solve_with_feedback(env, config=cfg)
 ```
 
 MLT saturates the temperature enhancement once convection takes over,
 keeping $\eta$ finite even for strongly radiating BHs. See
 [physics.md §5.2](physics.md#52-mlt-envelope).
+
+### Manual iteration (advanced)
+
+For custom convergence criteria or detailed logging, iterate explicitly:
+
+```python
+from radbondi.feedback import DiffusionFeedback
+
+feedback = DiffusionFeedback(ambient=ambient, kappa=0.27)
+T_eff = ambient.T
+for i in range(10):
+    prob_i = rb.BondiProblem(M_BH, ambient.with_temperature(T_eff), cooling)
+    sol_i = prob_i.solve(cfg)
+    result = feedback.feedback_temperature(sol_i.L)
+    if abs(result.T_eff / T_eff - 1) < 1e-3:
+        break
+    T_eff = result.T_eff
+```
+
+See `examples/03_feedback.py` for a full worked example of this pattern.
 
 ---
 
@@ -348,6 +361,28 @@ problem = rb.BondiProblem(M_BH, ambient, cooling=rb.Cooling.adiabatic())
 sol = problem.solve()
 # sol should reproduce the classical Bondi profile to discretization error
 ```
+
+### ODE shooting solver (reference solution)
+
+For the collisionless / weak-cooling regime where the sonic point is a
+saddle, the three-zone ODE shooting solver provides a fast, independent
+reference:
+
+```python
+# Via the unified solve() API (auto-detected from config type):
+sol = problem.solve(rb.ODESolverConfig(verbose=False))
+
+# Or explicitly:
+sol = problem.solve(method="ode")
+
+# Or as a standalone function:
+sol = rb.solve_ode(problem, rb.ODESolverConfig(verbose=False))
+```
+
+All three return a regular `Solution` with `sol.eta`, `sol.plot_profiles()`,
+etc. The ODE solver is ~50× faster than the time-dependent solver but fails
+when cooling is strong enough that the sonic point becomes a focus (typically
+$M_\mathrm{BH} \gtrsim 10^{-14}\,M_\odot$ for solar-core conditions).
 
 ### Quick low-resolution scan
 

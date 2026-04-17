@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **Unified `solve()` dispatch**: `BondiProblem.solve()` now accepts
+  `method="ode"` or auto-detects from the config type (pass an
+  `ODESolverConfig` to get the ODE solver, or `SolverConfig` for the
+  default time-dependent solver). The standalone `solve_ode()` function
+  remains available for backward compatibility.
+- **`solve_with_feedback()`**: convenience method on `BondiProblem` that
+  wraps the iterate-to-convergence loop (solve → compute T_eff →
+  re-solve). Works with both `DiffusionFeedback` and `MLTEnvelope`.
+  Returns a `Solution` whose `metadata` records iteration count, final
+  T_eff, and convergence status.
+- `tests/test_api.py`: 5 new tests covering method dispatch,
+  auto-detection, and feedback convergence.
+- `docs/custom_cooling.md` + `examples/04_custom_cooling.py`: tutorial
+  for adding a custom `CoolingProcess` subclass, with a worked
+  inverse-Compton example.
+
 ## [0.2.0] - 2026-04-16
 
 Adds an ODE shooting solver for cross-validation in regimes where the

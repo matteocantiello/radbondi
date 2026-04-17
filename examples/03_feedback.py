@@ -1,10 +1,12 @@
 """Self-consistent radiative-feedback iteration with the MLT envelope model.
 
-The radbondi solver takes the *ambient* medium as a fixed input. When the BH
-luminosity is large enough to heat the surroundings, the effective ambient
-temperature seen by the Bondi flow is no longer the unperturbed core
-temperature ``T_core``: it is shifted upward by feedback. This example shows
-the iterative recipe:
+The simplest way to include feedback is the built-in convenience method::
+
+    sol = problem.solve_with_feedback(envelope, config=cfg)
+
+which handles the convergence loop internally. This example demonstrates
+the *manual* iteration pattern for users who need custom logging or
+convergence criteria:
 
     1. Solve the Bondi+cooling problem with the unperturbed ambient.
     2. From the resulting luminosity ``L``, compute an effective ambient
