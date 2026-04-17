@@ -140,11 +140,117 @@ class BondiProblem:
 
     # ── Driver ────────────────────────────────────────────────────────────
 
-    def solve(self, config: SolverConfig | None = None) -> Solution:
-        """Solve to steady state and return a :class:`Solution`."""
+    def solve(self, config=None, method: str | None = None) -> Solution:
+        """Solve to steady state and return a :class:`Solution`.
+
+        Parameters
+        ----------
+        config : SolverConfig or ODESolverConfig, optional
+            Solver configuration. The type is auto-detected: if an
+            :class:`~radbondi.ode.ODESolverConfig` is passed, the ODE
+            shooting solver is used; otherwise the time-dependent solver.
+        method : str, optional
+            Explicit method selection: ``"time_dependent"`` (default) or
+            ``"ode"``. Overrides the auto-detection from ``config`` type.
+        """
+        from radbondi.ode import ODESolverConfig, solve_ode
+
+        if method is None:
+            method = "ode" if isinstance(config, ODESolverConfig) else "time_dependent"
+
+        if method == "ode":
+            if config is None or not isinstance(config, ODESolverConfig):
+                config = ODESolverConfig()
+            return solve_ode(self, config)
+        if method == "time_dependent":
+            if config is None:
+                config = SolverConfig()
+            return _evolve_local_dt(self, config)
+        raise ValueError(
+            f"Unknown method {method!r}; use 'time_dependent' or 'ode'."
+        )
+
+    def solve_with_feedback(
+        self,
+        feedback_model,
+        config: SolverConfig | None = None,
+        tol: float = 1e-3,
+        max_iter: int = 8,
+        verbose: bool = True,
+    ) -> Solution:
+        """Solve with self-consistent radiative-feedback iteration.
+
+        Iterates:
+
+        1. Solve the Bondi+cooling problem with the current ambient.
+        2. From the resulting luminosity *L*, compute an effective ambient
+           temperature *T_eff* using ``feedback_model``.
+        3. Build a new :class:`AmbientMedium` with ``T = T_eff`` and re-solve.
+        4. Repeat until ``|dL/L| < tol``.
+
+        Parameters
+        ----------
+        feedback_model
+            Any object with a ``feedback_temperature(L_BH=...)`` method.
+            Built-in options: :class:`~radbondi.feedback.DiffusionFeedback`,
+            :class:`~radbondi.feedback.MLTEnvelope`.
+        config : SolverConfig, optional
+            Time-dependent solver configuration (used for each iteration).
+        tol : float
+            Convergence tolerance on ``|dL/L|``.
+        max_iter : int
+            Maximum number of iterations.
+        verbose : bool
+            Print progress.
+
+        Returns
+        -------
+        Solution
+            The final converged solution. Its ``metadata`` dict contains
+            ``"feedback_iterations"`` (int), ``"feedback_T_eff"`` (float),
+            and ``"feedback_converged"`` (bool).
+        """
         if config is None:
             config = SolverConfig()
-        return _evolve_local_dt(self, config)
+
+        ambient0 = self.ambient
+        sol = self.solve(config)
+        L_prev = sol.L
+
+        if verbose:
+            print(f"  Feedback iter 0: T_amb={ambient0.T:.3e} K, "
+                  f"eta={sol.eta:.3e}, L={sol.L:.3e}")
+
+        converged = False
+        for it in range(1, max_iter + 1):
+            # Compute effective ambient temperature from the luminosity.
+            result = feedback_model.feedback_temperature(L_BH=sol.L)
+            T_eff = result.T_eff if hasattr(result, "T_eff") else float(result)
+
+            # Re-solve with the modified ambient.
+            ambient_fb = ambient0.with_temperature(T_eff)
+            problem_fb = BondiProblem(
+                M_BH=self.M_BH, ambient=ambient_fb, cooling=self.cooling,
+            )
+            sol = problem_fb.solve(config)
+
+            rel = abs(sol.L - L_prev) / L_prev if L_prev > 0 else float("inf")
+            if verbose:
+                print(f"  Feedback iter {it}: T_eff={T_eff:.3e} K, "
+                      f"eta={sol.eta:.3e}, L={sol.L:.3e}, |dL|/L={rel:.3e}")
+            if rel < tol:
+                converged = True
+                break
+            L_prev = sol.L
+
+        sol.metadata["feedback_iterations"] = it
+        sol.metadata["feedback_T_eff"] = T_eff
+        sol.metadata["feedback_converged"] = converged
+        if verbose and converged:
+            print(f"  Feedback converged in {it} iterations.")
+        elif verbose:
+            print(f"  Feedback did NOT converge in {max_iter} iterations.")
+        return sol
 
 
 # ──────────────────────────────────────────────────────────────────────────
