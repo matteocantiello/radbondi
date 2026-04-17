@@ -1,6 +1,7 @@
 # radbondi
 
 [![tests](https://github.com/matteocantiello/radbondi/actions/workflows/test.yml/badge.svg)](https://github.com/matteocantiello/radbondi/actions/workflows/test.yml)
+[![PyPI](https://img.shields.io/pypi/v/radbondi.svg)](https://pypi.org/project/radbondi/)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](pyproject.toml)
 
@@ -24,7 +25,9 @@ users can add their own processes by subclassing `CoolingProcess`.
 ## Installation
 
 ```bash
-pip install -e ".[dev]"   # development install
+pip install radbondi              # from PyPI
+pip install radbondi[plot]        # + matplotlib for sol.plot_profiles()
+pip install -e ".[dev]"           # development install (editable + test deps)
 ```
 
 ## Quickstart
