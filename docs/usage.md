@@ -9,11 +9,19 @@ equations, see [physics.md](physics.md); for the discretization, see
 ## 1. Install
 
 ```bash
-pip install -e ".[dev]"      # development install
-pip install -e ".[plot]"     # + matplotlib for plot_profiles
+pip install radbondi              # from PyPI
+pip install radbondi[plot]        # + matplotlib for sol.plot_profiles()
 ```
 
-Python ≥ 3.10 required. Dependencies: `numpy`, `scipy`.
+For contributors / development:
+
+```bash
+git clone https://github.com/matteocantiello/radbondi.git
+cd radbondi
+pip install -e ".[dev]"           # editable install + test/lint deps
+```
+
+Python >= 3.10 required. Runtime dependencies: `numpy`, `scipy`.
 
 ---
 
@@ -182,6 +190,18 @@ All knobs, with guidance on what to change and when:
 ### Diagnostics
 - **`snapshot_interval`** — how often to print progress in verbose mode.
 - **`verbose`** — toggle the per-step log.
+
+### Quick settings cheat sheet
+
+| Scenario | `order` | `N` | `x_min` | `n_steps` | Notes |
+|----------|---------|-----|---------|-----------|-------|
+| Fast exploration | 1 | 200 | 1e-4 | 10 000 | ~30 s; qualitative profiles, ~30% on η |
+| Moderate accuracy | 1 | 800 | 1e-5 | 50 000 | ~2 min; good for parameter scans |
+| Collisionless, publication | 2 | 6400 | 3e-6 | 200 000 | ~1 h; matches paper to <2% |
+| Strong cooling, publication | 1 | 6400 | 1e-5 | 200 000 | ~30 min; MUSCL cannot be used here |
+
+See [paper_reproduction.md](paper_reproduction.md) for the full per-mass
+configuration used in Cantiello et al.
 
 ---
 
