@@ -58,3 +58,4 @@ tmp/
 
 # Generated example output
 examples/paper_sweep_output/
+examples/paper_sweep_logs/
