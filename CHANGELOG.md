@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-04-17
+
+Unified solver API, self-consistent feedback convenience method, custom
+cooling tutorial, and full paper Table 1 reproduction at production
+resolution (18/18 masses within ±5%).
+
 ### Added
 - **Unified `solve()` dispatch**: `BondiProblem.solve()` now accepts
   `method="ode"` or auto-detects from the config type (pass an
