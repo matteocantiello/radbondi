@@ -11,10 +11,6 @@
 - **[scheme.md](scheme.md)** — finite-volume discretization, MUSCL
   reconstruction, HLL/Rusanov Riemann solvers, well-balancing, local
   time stepping, operator-split implicit cooling.
-- **[collisionless_analysis.md](collisionless_analysis.md)** — why the
-  Bondi rate survives in the collisionless inner region: angular momentum
-  budget, recycling balance, self-consistent transition radius, GR
-  capture threshold derivation.
 - **[paper_reproduction.md](paper_reproduction.md)** — how to reproduce
   Cantiello et al. Table 1: three modes (fast validation in minutes,
   paper-exact in hours), per-mass solver configuration, verification
