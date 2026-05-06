@@ -36,11 +36,17 @@ pip install -e ".[dev]"           # development install (editable + test deps)
 import radbondi as rb
 
 ambient = rb.presets.solar_core()
-problem = rb.BondiProblem(M_BH=1e-16 * rb.M_sun, ambient=ambient)
-sol = problem.solve(rb.SolverConfig(N=800, x_min=3e-6))
+cooling = rb.Cooling.default()       # bremsstrahlung + pair annihilation
+problem = rb.BondiProblem(
+    M_BH=1e-16 * rb.M_sun,          # CGS: all units are g, cm, s, K, erg
+    ambient=ambient,
+    cooling=cooling,
+)
+sol = problem.solve(rb.SolverConfig(N=400, x_min=1e-5, n_steps=30_000))
 
-print(f"eta = {sol.eta:.3e}")
-sol.plot_profiles()
+print(f"eta       = {sol.eta:.3e}")          # radiative efficiency L/(Mdot c^2)
+print(f"Mdot/Mdot_B = {sol.mdot_ratio:.2f}") # cooling enhancement factor
+sol.plot_profiles()                           # requires pip install radbondi[plot]
 ```
 
 ## Documentation
