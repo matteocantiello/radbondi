@@ -1,0 +1,29 @@
+{
+  "title": "radbondi: Time-dependent spherical Bondi accretion solver with radiative cooling",
+  "description": "Time-dependent spherical Bondi accretion solver with pluggable radiative cooling. Solves the 1D spherical Euler equations with an implicit cooling source term and converges to a self-consistent steady state, in regimes where the standard ODE shooting method fails (the sonic point becomes a focus rather than a saddle). Developed for the study of primordial black holes accreting in stellar interiors (Cantiello, Gottlieb, Norton, Kleban & Van Tilburg, ApJ, submitted).",
+  "creators": [
+    {
+      "name": "Cantiello, Matteo",
+      "orcid": "0000-0002-8171-8596",
+      "affiliation": "Center for Computational Astrophysics, Flatiron Institute; Department of Astrophysical Sciences, Princeton University"
+    }
+  ],
+  "license": "MIT",
+  "upload_type": "software",
+  "access_right": "open",
+  "keywords": [
+    "astrophysics",
+    "accretion",
+    "bondi-accretion",
+    "black-holes",
+    "hydrodynamics",
+    "primordial-black-holes"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/matteocantiello/radbondi",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}

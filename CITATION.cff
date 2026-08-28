@@ -36,14 +36,21 @@ date-released: "2026-04-17"
 
 preferred-citation:
   type: article
-  title: >-
-    Growth of Primordial Black Holes in Stellar Interiors:
-    Bondi Accretion with Bremsstrahlung Cooling
+  title: "Accretion of Primordial Black Holes in Stellar Interiors"
   authors:
     - given-names: Matteo
       family-names: Cantiello
       orcid: "https://orcid.org/0000-0002-8171-8596"
+    - given-names: Ore
+      family-names: Gottlieb
+    - given-names: Cameron
+      family-names: Norton
+    - given-names: Matthew
+      family-names: Kleban
+    - given-names: Ken
+      family-names: Van Tilburg
   year: 2026
+  journal: "The Astrophysical Journal"
   notes: >-
-    In preparation. This entry will be updated with journal, volume, and DOI
+    Submitted (AAS77596). This entry will be updated with volume and DOI
     information once the paper is accepted.
