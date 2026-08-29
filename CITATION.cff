@@ -31,8 +31,8 @@ keywords:
   - black-holes
   - hydrodynamics
   - primordial-black-holes
-version: 0.3.0
-date-released: "2026-04-17"
+version: 1.0.0
+date-released: "2026-08-29"
 
 preferred-citation:
   type: article

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-08-29
+
+First stable release, accompanying the paper "Accretion of Primordial
+Black Holes in Stellar Interiors" (Cantiello, Gottlieb, Norton, Kleban
+& Van Tilburg, ApJ, in review). Code-identical to v0.3.0, which was
+used for all calculations in the paper.
+
+### Added
+- `.zenodo.json` with Zenodo deposit metadata (author, ORCID,
+  affiliation, MIT license) for the archived release.
+
+### Changed
+- `CITATION.cff`: preferred citation updated to the submitted paper
+  (full title and author list).
+- README: PyPI badge and `pip install radbondi` instructions.
+- Paper-specific documents and experiments moved out of the tool
+  repository.
+
 ## [0.3.0] - 2026-04-17
 
 Unified solver API, self-consistent feedback convenience method, custom
